@@ -1,0 +1,45 @@
+# This workflow will run tests using node and then publish a package for the UI to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Package Weather API
+on:
+  # build and package of this API happens after the tag is created
+  workflow_run:
+    workflows: ["Bump Tag"]
+    branches: [master]
+    types: 
+      - completed
+
+jobs:
+  build-and-publish:
+    env:
+      IMAGE_NAME: weather-api
+    name: Build and Publish API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - name: Build Node.js App
+        working-directory: ./${{ env.IMAGE_NAME }}  
+        run: npm ci  
+      # build and push image to Docker Hub
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+      - name: Verify tag
+        run: echo ${{ steps.get-latest-tag.outputs.tag }}
+      - uses: docker/build-push-action@v1
+        with:
+          path: ./${{ env.IMAGE_NAME }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}  
+          repository: msftgbb/${{ env.IMAGE_NAME }}
+          tags: ${{ steps.get-latest-tag.outputs.tag }}
+          dockerfile: ./${{ env.IMAGE_NAME }}/Dockerfile
+          add_git_labels: true
+      - name: app-baseline Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: cloudnativegbb/app-baseline
+          event-type: version-event
+          client-payload: '{"image_name": "${{ env.IMAGE_NAME }}", "version": "${{ steps.get-latest-tag.outputs.tag }}"}'
