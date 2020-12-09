@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: chili.azurecr.io/${{ env.IMAGE_NAME }}/${{ steps.get-latest-tag.outputs.tag }}
+          tags: chili.azurecr.io/${{ env.IMAGE_NAME }}:${{ steps.get-latest-tag.outputs.tag }}
           labels: ${{ steps.docker_meta.outputs.labels }}
           file: ./${{ env.IMAGE_NAME }}/Dockerfile
       - name: app-baseline Repository Dispatch
