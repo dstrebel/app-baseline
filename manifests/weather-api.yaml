@@ -30,7 +30,7 @@ spec:
         app: weather-api
     spec:
       containers:
-        - image: chili.azurecr.io/weather-api:v0.0.8
+        - image: chili.azurecr.io/weather-api:v0.0.12
           imagePullPolicy: Always
           name: weather-api
           resources:
