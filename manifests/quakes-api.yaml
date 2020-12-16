@@ -30,7 +30,7 @@ spec:
         app: quakes-api
     spec:
       containers:
-        - image: chili.azurecr.io/quakes-api:v0.0.7
+        - image: chili.azurecr.io/quakes-api:v0.0.12
           imagePullPolicy: Always
           name: quakes-api
           resources:
