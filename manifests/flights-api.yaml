@@ -30,7 +30,7 @@ spec:
         app: flights-api
     spec:
       containers:
-        - image: chili.azurecr.io/flights-api:v0.0.12
+        - image: chili.azurecr.io/flights-api:v0.0.17
           imagePullPolicy: Always
           name: flights-api
           resources:
