@@ -30,7 +30,7 @@ spec:
         app: data-api
     spec:
       containers:
-        - image: chili.azurecr.io/data-api:v0.0.16
+        - image: chili.azurecr.io/data-api:v0.0.17
           imagePullPolicy: Always
           name: data-api
           resources:
