@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: chili.azurecr.io
+        username: ${{ secrets.acr_chili_username }}
+        password: ${{ secrets.acr_chili_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/flights-api" -f  "flights-api/Dockerfile" -t chili.azurecr.io/chilidogdev:${{ github.sha }} --label dockerfile-path=flights-api/Dockerfile
+        docker push chili.azurecr.io/chilidogdev:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_chilidogdev_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep chilidog-dev8bae | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace chilidog-dev8bae`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: chilidog-dev8bae
+        container-registry-url: chili.azurecr.io
+        container-registry-username: ${{ secrets.acr_chili_username }}
+        container-registry-password: ${{ secrets.acr_chili_password }}
+        secret-name: chilidogdevdockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: chilidog-dev8bae
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          chili.azurecr.io/chilidogdev:${{ github.sha }}
+        imagepullsecrets: |
+          chilidogdevdockerauth
