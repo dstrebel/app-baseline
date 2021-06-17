@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: "chilidogdev-8656"
+    labels:
+        app: "chilidogdev-8656"
+spec:
+    type: LoadBalancer
+    ports:
+    - port: 3009
+      targetPort: 3009
+      protocol: TCP
+      name: http
+    selector:
+        app: "chilidogdev-8656"
