@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "chilidogdev-8656"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "chilidogdev-8656"
+  template:
+    metadata:
+      labels:
+        app: "chilidogdev-8656"
+    spec:
+      containers:
+        - name: "chilidogdev-8656"
+          image: "chili.azurecr.io/chilidogdev"
+          ports:
+          - containerPort: 3009
